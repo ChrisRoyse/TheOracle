@@ -109,18 +109,45 @@ A core research finding drives the whole program: **static embedders see what co
 
 ## 🧭 The North Star
 
-Everything in this repository traces to one falsifiable predicate. Nothing ships unless it moves a number on this sheet:
+Everything here traces to one **falsifiable predicate** — and it is deliberately strict. A single high accuracy number is *not* enough. The system has reached **domain super-intelligence for Python** only when **every** condition below holds at once, and stays true across time:
 
 ```text
-THE SYSTEM WORKS  ⇔
-    prediction_oracle_correlation ≥ 0.95
-    STABLE across 4 consecutive rolling windows
-    on the 300 × 8 SWE-bench Lite Python corpus
-    using real Docker-oracle Pass/Fail as ground truth
-    AND confirmed on a second independent panel within 0.05
+SUPERHUMAN_VERIFIER(Python)  ⇔  ∃ a deterministic predictor P such that:
+
+  TIER 1 — ship-gate numbers
+    corr(P, Docker-oracle) ≥ 0.95           (raw Pearson vs real test Pass/Fail)
+    STABLE × 4 consecutive rolling windows
+    AND a second, independent sensor panel also ≥ 0.95
+    AND |corr_A − corr_B| ≤ 0.05            (learned reality, not one panel)
+
+  TIER 2 — per-cell quality
+    every (mutation-class × language) cell clears its own bar
+    (Pearson / class-recall + Brier ≤ 0.05 + ECE ≤ 0.05 + conformal coverage)
+
+  TIER 3 — it learns from being wrong
+    mistake_repeat_rate ≤ 0.05   AND   no damage to unrelated cells
+
+  TIER 4 — doctrine invariants hold EXACTLY (fences, not goals)
+    slot identity preserved · no flat-vector fusion · no inner generator ·
+    frozen-target gradient leak = 0 · oracle labels never used as live inputs
+
+  TIER 5 — the substrate can actually carry the answer
+    I(panel ; oracle) ≥ 0.95 bits           (the panel SHARES the verdict's bits)
+    oracle_self_consistency ≥ 0.97          (the oracle agrees with itself)
+    oracle_validity        ≥ 0.97           (the verdict tracks real correctness)
+
+  TIER 6 — every sensor earns its place
+    novelty < 0.7 vs existing slots   AND   per-cell utility lift ≥ 0.005
 ```
 
-The moment this evaluates **TRUE**, human review of AI-generated Python patches becomes statistically unjustified. **That is the finish line — and the birth of the first engineering super-intelligence.**
+Two facts make this honest rather than aspirational:
+
+- **The oracle is the ceiling.** You can never agree with the test oracle more often than it agrees with itself — and only when its verdicts track *real* correctness. So `0.95` is bounded above by oracle **self-consistency** *and* **validity**, and we measure and defend the oracle *first*.
+- **The panel must carry the bits before any model can.** By the data-processing inequality, no predictor can know more about the verdict than `I(panel; oracle)` shares with it. If the panel is information-starved, *no amount of training moves Tier 1.* That is the **current binding constraint** — see the climb below.
+
+The moment this whole predicate evaluates **TRUE** and holds, human review of AI-generated Python patches becomes statistically unjustified. **That is the finish line — the first instance of operational super-intelligence in a domain, and the template for every domain after it.**
+
+> 📄 The complete predicate — all five eligibility prerequisites, all six tiers, every threshold and *why* it has that value, the verification protocol, and the full predictor architecture — is set out in the project's **North Star specification**, developed alongside the companion papers *The Oracle and the Kernel* (the oracle as grounding anchor; mutual information as a kernel-existence test) and *The Calculus of Association* (frozen embedders as designable measurement instruments).
 
 ---
 
@@ -128,20 +155,24 @@ The moment this evaluates **TRUE**, human review of AI-generated Python patches 
 
 <img src="assets/progress.jpg" alt="A glowing trajectory line climbing toward a golden goal-line near the top of a cosmic grid" width="100%" />
 
-This is honest, in-progress research — and the climb is real. Predicting correctness from how code *looks* hits a hard ceiling. Teaching the Oracle to perceive what code *does* breaks through it:
+This is honest, in-progress research, and the deepest finding so far is *where the bottleneck actually is.*
 
-| Stage of the climb | Oracle correlation |
+Predicting correctness from how code **looks** hits a hard ceiling — and we proved it cleanly. On a perfectly clean oracle, the static-text panel shares only **~0.46 of the ~1 bit** the verdict needs (`I(panel; oracle) ≈ 0.46`). By the data-processing inequality, that *caps every possible predictor reading it* — so the fix is not "train harder," it is **a better panel**: sensors that perceive what code **does**, not what it looks like. Teaching the panel to perceive **execution** is what moves the number:
+
+| Stage of the climb | Oracle correlation* |
 |---|:---:|
-| 📉 Static baseline (judging code by appearance) | ~0.48 |
-| ➕ Execution-aware inputs (value capture) | ~0.46 → 0.54 |
+| 📉 Static-text panel (judging code by appearance) | ~0.48 |
+| ➕ Execution value-capture (return-value divergence) | ~0.46 → 0.54 |
 | ➕ Coverage gating (ignore tests that never run the change) | ~0.54 |
-| ➕ Real test-scope tracing (run what the oracle runs) | ~0.66 |
-| 🚀 Combined execution-aware panel (best measured head) | **~0.74** |
+| ➕ Real oracle-scope tracing (run what the oracle runs) | ~0.66 |
+| 🚀 Combined execution-aware panel, covered rows (best head) | **~0.74** |
 | 🎯 **The target** | **0.95** |
 
-*Measured on the 300 × 8 SWE-bench Lite Python corpus. These numbers move as the work advances — that's the point of tracking them in the open.*
+<sub>*Best-head correlation on covered behavioral rows of the 300 × 8 SWE-bench Lite Python corpus. The real gate is the substrate-sufficiency test `I(panel; oracle) ≥ 0.95 bits` — the constraint these execution sensors exist to satisfy. Numbers move as the work advances; that's the point of tracking them in the open.*</sub>
 
-Every one of those jumps is a logged experiment in this repo's issue history. **The gap from 0.74 to 0.95 is the work that remains** — and you can watch it close in real time.
+In parallel, the **oracle itself is being hardened** (Tier 5 validity): auditing where SWE-bench's curated tests are too weak to *observe* a real bug, then recovering those labels with stronger, independent oracles — because a predictor can only ever be as truthful as the oracle it is measured against.
+
+Every one of these jumps is a logged experiment in this repo's issue history — **the climb from a starved static panel to a sufficient execution-aware one is the work that remains**, and you can watch it close in real time.
 
 ---
 
@@ -149,7 +180,10 @@ Every one of those jumps is a logged experiment in this repo's issue history. **
 
 ```
   ✅  Build the binary reality predictor for Python        ← the engine exists
-  🔬  Drive oracle correlation 0.48 → 0.74 → 0.95          ← we are here
+  ✅  Prove the clean negative: static panel is starved     ← I(panel;oracle) ≈ 0.46 bits
+  🔬  Assemble an execution-aware panel to I ≥ 0.95 bits    ← we are here (Tier 5)
+  🔬  Harden the oracle: audit + repair weak-test validity  ← we are here (Tier 5)
+  🎯  Drive oracle correlation to 0.95, stable, cross-panel ← the ship gate (Tiers 1–4)
   🐍  Make human review of Python patches unjustified      ← the first super-intelligence
   🌐  Replicate the blueprint across every language        ← generalize
   🏛️  Domain super-intelligence for engineering itself     ← the mission
